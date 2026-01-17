@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniSwap DEX</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.4/dist/web3.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        #connectWallet {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        #connectWallet:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        #walletAddress {
+            color: white;
+            font-family: monospace;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .card h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 22px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            width: 100%;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .pool-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-box {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .info-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .info-box p {
+            color: #333;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .loading {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .token-balances {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .balance-box {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 10px;
+            min-width: 200px;
+            text-align: center;
+        }
+        
+        .balance-box h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .balance-box .balance {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .contract-info {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            color: white;
+            font-size: 12px;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        
+        .network-info {
+            color: white;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 10px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-left: 15px;
+        }
+        
+        .wallet-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .wallet-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .wallet-btn:hover {
+            background: #1976D2;
+            transform: translateY(-2px);
+        }
+        
+        .wallet-btn.subwallet {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E53 100%);
+        }
+        
+        .instructions {
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .instructions h3 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        .instructions ul {
+            margin-left: 20px;
+            color: #555;
+        }
+        
+        .instructions li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <span>🔄</span>
+                <span>MiniSwap DEX</span>
+                <div class="network-info">Moonbase Alpha</div>
+            </div>
+            <div class="wallet-section">
+                <div class="wallet-buttons">
+                    <button class="wallet-btn subwallet" id="connectSubWallet">Connect SubWallet</button>
+                </div>
+                <div id="walletAddress"></div>
+            </div>
+        </div>
+        
+        <div class="instructions">
+            <h3>使用说明：</h3>
+            <ul>
+                <li>1. 点击"Connect SubWallet"连接您的SubWallet钱包</li>
+                <li>2. 确保钱包已切换到Moonbase Alpha网络</li>
+                <li>3. 添加流动性前需要先点击"Approve Tokens First"授权代币</li>
+                <li>4. 每次交易都需要支付少量DEV作为Gas费</li>
+                <li>5. 所有代币兑换比例为1:1，无手续费</li>
+            </ul>
+        </div>
+        
+        <div class="token-balances">
+            <div class="balance-box">
+                <h4>USDT Balance</h4>
+                <div class="balance" id="usdtBalance">0</div>
+            </div>
+            <div class="balance-box">
+                <h4>USDC Balance</h4>
+                <div class="balance" id="usdcBalance">0</div>
+            </div>
+            <div class="balance-box">
+                <h4>Your Liquidity (USDT-USDC)</h4>
+                <div class="balance" id="userLiquidityDisplay">0</div>
+            </div>
+        </div>
+        
+        <div class="status" id="status"></div>
+        
+        <div class="content">
+            <div class="card">
+                <h2>Add Liquidity</h2>
+                <div class="form-group">
+                    <label for="addTokenA">Token A:</label>
+                    <select id="addTokenA">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="addTokenB">Token B:</label>
+                    <select id="addTokenB">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="addAmount">Amount (for each token):</label>
+                    <input type="number" id="addAmount" placeholder="Enter amount" min="0" step="0.1">
+                </div>
+                <button class="btn" id="addLiquidityBtn">Add Liquidity</button>
+                <button class="btn" id="approveTokensBtn" style="background: #ff9800; margin-top: 10px;">Approve Tokens First</button>
+            </div>
+            
+            <div class="card">
+                <h2>Remove Liquidity</h2>
+                <div class="form-group">
+                    <label for="removeTokenA">Token A:</label>
+                    <select id="removeTokenA">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="removeTokenB">Token B:</label>
+                    <select id="removeTokenB">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="removeAmount">Amount to Remove:</label>
+                    <input type="number" id="removeAmount" placeholder="Enter amount" min="0" step="0.1">
+                </div>
+                <button class="btn" id="removeLiquidityBtn">Remove Liquidity</button>
+            </div>
+            
+            <div class="card">
+                <h2>Swap Tokens</h2>
+                <div class="form-group">
+                    <label for="swapTokenIn">From Token:</label>
+                    <select id="swapTokenIn">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="swapTokenOut">To Token:</label>
+                    <select id="swapTokenOut">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="swapAmount">Amount to Swap:</label>
+                    <input type="number" id="swapAmount" placeholder="Enter amount" min="0" step="0.1">
+                </div>
+                <button class="btn" id="swapBtn">Swap Tokens</button>
+            </div>
+            
+            <div class="card">
+                <h2>Pool Information</h2>
+                <div class="form-group">
+                    <label for="poolTokenA">Token A:</label>
+                    <select id="poolTokenA">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="poolTokenB">Token B:</label>
+                    <select id="poolTokenB">
+                        <option value="0x0000000000000000000000000000000000000000">Select Token</option>
+                        <option value="0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231">USDT</option>
+                        <option value="0x54D003c531572FaBc927dB5a64F4d4CA58656D3f">USDC</option>
+                    </select>
+                </div>
+                <div class="pool-info" id="poolInfo">
+                    <div class="info-box">
+                        <h4>Token A Balance</h4>
+                        <p id="poolTokenABalance">0</p>
+                    </div>
+                    <div class="info-box">
+                        <h4>Token B Balance</h4>
+                        <p id="poolTokenBBalance">0</p>
+                    </div>
+                    <div class="info-box">
+                        <h4>Total Liquidity</h4>
+                        <p id="poolTotalLiquidity">0</p>
+                    </div>
+                </div>
+                <button class="btn" id="refreshPoolBtn">Refresh Pool Info</button>
+            </div>
+        </div>
+        
+        <div class="contract-info">
+            <strong>Contract Addresses:</strong><br>
+            USDT: 0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231<br>
+            USDC: 0x54D003c531572FaBc927dB5a64F4d4CA58656D3f<br>
+            MiniSwap: 0x1613B0F8FBCCB5533C122BCC328b632D71Dc932C
+        </div>
+    </div>
+
+    <script>
+        let web3;
+        let accounts = [];
+        let userAddress;
+        let walletProvider = null;
+        
+        // 更新后的合约地址
+        const contractAddresses = {
+            usdt: "0xafd9410c28eFab9d08Ce533a2EB97bdE9171F231",
+            usdc: "0x54D003c531572FaBc927dB5a64F4d4CA58656D3f",
+            miniswap: "0x1613B0F8FBCCB5533C122BCC328b632D71Dc932C"
+        };
+
+        // Moonbase Alpha网络配置
+        const moonbaseAlphaConfig = {
+            chainId: '0x507', // 1287 in hex
+            chainName: 'Moonbase Alpha',
+            nativeCurrency: {
+                name: 'DEV',
+                symbol: 'DEV',
+                decimals: 18
+            },
+            rpcUrls: ['https://rpc.api.moonbase.moonbeam.network'],
+            blockExplorerUrls: ['https://moonbase.moonscan.io/']
+        };
+
+        // ERC20 ABI
+        const erc20ABI = [
+            {
+                "constant": true,
+                "inputs": [{"name": "_owner", "type": "address"}],
+                "name": "balanceOf",
+                "outputs": [{"name": "balance", "type": "uint256"}],
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "_spender", "type": "address"},
+                    {"name": "_value", "type": "uint256"}
+                ],
+                "name": "approve",
+                "outputs": [{"name": "", "type": "bool"}],
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "_to", "type": "address"},
+                    {"name": "_value", "type": "uint256"}
+                ],
+                "name": "transfer",
+                "outputs": [{"name": "", "type": "bool"}],
+                "type": "function"
+            },
+            {
+                "constant": false,
+                "inputs": [
+                    {"name": "_from", "type": "address"},
+                    {"name": "_to", "type": "address"},
+                    {"name": "_value", "type": "uint256"}
+                ],
+                "name": "transferFrom",
+                "outputs": [{"name": "", "type": "bool"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "decimals",
+                "outputs": [{"name": "", "type": "uint8"}],
+                "type": "function"
+            },
+            {
+                "constant": true,
+                "inputs": [],
+                "name": "symbol",
+                "outputs": [{"name": "", "type": "string"}],
+                "type": "function"
+            }
+        ];
+
+        // MiniSwap ABI
+        const miniswapABI = [
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "tokenA", "type": "address"},
+                    {"internalType": "address", "name": "tokenB", "type": "address"},
+                    {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                ],
+                "name": "addLiquidity",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "tokenA", "type": "address"},
+                    {"internalType": "address", "name": "tokenB", "type": "address"},
+                    {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                ],
+                "name": "removeLiquidity",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "tokenIn", "type": "address"},
+                    {"internalType": "address", "name": "tokenOut", "type": "address"},
+                    {"internalType": "uint256", "name": "amount", "type": "uint256"}
+                ],
+                "name": "swap",
+                "outputs": [],
+                "stateMutability": "nonpayable",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "", "type": "address"},
+                    {"internalType": "address", "name": "", "type": "address"}
+                ],
+                "name": "pools",
+                "outputs": [
+                    {"internalType": "uint256", "name": "tokenABalance", "type": "uint256"},
+                    {"internalType": "uint256", "name": "tokenBBalance", "type": "uint256"},
+                    {"internalType": "uint256", "name": "totalLiquidity", "type": "uint256"}
+                ],
+                "stateMutability": "view",
+                "type": "function"
+            },
+            {
+                "inputs": [
+                    {"internalType": "address", "name": "", "type": "address"},
+                    {"internalType": "address", "name": "", "type": "address"},
+                    {"internalType": "address", "name": "", "type": "address"}
+                ],
+                "name": "userLiquidity",
+                "outputs": [{"internalType": "uint256", "name": "", "type": "uint256"}],
+                "stateMutability": "view",
+                "type": "function"
+            }
+        ];
+
+        // 显示状态消息
+        function showStatus(message, type) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = 'status ' + type;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // 检查并切换到Moonbase Alpha网络
+        async function switchToMoonbaseAlpha() {
+            try {
+                const chainId = await walletProvider.request({ method: 'eth_chainId' });
+                
+                if (chainId !== moonbaseAlphaConfig.chainId) {
+                    showStatus('Switching to Moonbase Alpha network...', 'loading');
+                    
+                    try {
+                        await walletProvider.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: moonbaseAlphaConfig.chainId }]
+                        });
+                        showStatus('Switched to Moonbase Alpha network', 'success');
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            try {
+                                await walletProvider.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [moonbaseAlphaConfig]
+                                });
+                                showStatus('Moonbase Alpha network added and switched', 'success');
+                            } catch (addError) {
+                                showStatus('Failed to add Moonbase Alpha network: ' + addError.message, 'error');
+                                return false;
+                            }
+                        } else {
+                            showStatus('Failed to switch network: ' + switchError.message, 'error');
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            } catch (error) {
+                console.error('Error checking/switching network:', error);
+                showStatus('Network error: ' + error.message, 'error');
+                return false;
+            }
+        }
+
+        // 连接SubWallet
+        async function connectSubWallet() {
+            try {
+                // 检查SubWallet是否可用
+                if (typeof window.SubWallet === 'undefined') {
+                    showStatus('SubWallet is not installed. Please install SubWallet extension.', 'error');
+                    return;
+                }
+                
+                walletProvider = window.SubWallet;
+                web3 = new Web3(walletProvider);
+                
+                // 请求账户访问
+                accounts = await walletProvider.request({ method: 'eth_requestAccounts' });
+                userAddress = accounts[0];
+                
+                // 切换到Moonbase Alpha网络
+                const switched = await switchToMoonbaseAlpha();
+                if (!switched) {
+                    return;
+                }
+                
+                // 更新UI
+                document.getElementById('walletAddress').textContent = 
+                    userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+                document.getElementById('connectSubWallet').textContent = 'Connected';
+                
+                showStatus('SubWallet connected successfully!', 'success');
+                
+                // 加载余额
+                await loadBalances();
+                
+                // 更新用户流动性信息
+                await updateUserLiquidity();
+                
+                // 更新池子信息
+                await updatePoolInfo();
+                
+            } catch (error) {
+                console.error('Error connecting SubWallet:', error);
+                showStatus('Error connecting SubWallet: ' + error.message, 'error');
+            }
+        }
+
+        // 加载代币余额
+        async function loadBalances() {
+            if (!userAddress) return;
+            
+            try {
+                const usdtContract = new web3.eth.Contract(erc20ABI, contractAddresses.usdt);
+                const usdcContract = new web3.eth.Contract(erc20ABI, contractAddresses.usdc);
+                
+                const usdtBalance = await usdtContract.methods.balanceOf(userAddress).call();
+                const usdcBalance = await usdcContract.methods.balanceOf(userAddress).call();
+                
+                document.getElementById('usdtBalance').textContent = 
+                    (usdtBalance / 10**18).toFixed(2);
+                document.getElementById('usdcBalance').textContent = 
+                    (usdcBalance / 10**18).toFixed(2);
+            } catch (error) {
+                console.error('Error loading balances:', error);
+                showStatus('Error loading balances: ' + error.message, 'error');
+            }
+        }
+
+        // 批准代币
+        async function approveTokens() {
+            const tokenA = document.getElementById('addTokenA').value;
+            const tokenB = document.getElementById('addTokenB').value;
+            const amount = document.getElementById('addAmount').value;
+            
+            if (!tokenA || !tokenB || tokenA === '0x0000000000000000000000000000000000000000' || tokenB === '0x0000000000000000000000000000000000000000') {
+                showStatus('Please select two different tokens', 'error');
+                return;
+            }
+            
+            if (tokenA === tokenB) {
+                showStatus('Cannot approve same token twice', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Approving tokens...', 'loading');
+                
+                const amountWei = web3.utils.toWei(amount, 'ether');
+                const tokenAContract = new web3.eth.Contract(erc20ABI, tokenA);
+                const tokenBContract = new web3.eth.Contract(erc20ABI, tokenB);
+                
+                // 批准代币A
+                await tokenAContract.methods.approve(contractAddresses.miniswap, amountWei)
+                    .send({ from: userAddress });
+                
+                // 批准代币B
+                await tokenBContract.methods.approve(contractAddresses.miniswap, amountWei)
+                    .send({ from: userAddress });
+                
+                showStatus('Tokens approved successfully!', 'success');
+            } catch (error) {
+                console.error('Error approving tokens:', error);
+                showStatus('Error approving tokens: ' + error.message, 'error');
+            }
+        }
+
+        // 添加流动性
+        async function addLiquidity() {
+            const tokenA = document.getElementById('addTokenA').value;
+            const tokenB = document.getElementById('addTokenB').value;
+            const amount = document.getElementById('addAmount').value;
+            
+            if (!tokenA || !tokenB || tokenA === '0x0000000000000000000000000000000000000000' || tokenB === '0x0000000000000000000000000000000000000000') {
+                showStatus('Please select two different tokens', 'error');
+                return;
+            }
+            
+            if (tokenA === tokenB) {
+                showStatus('Cannot add liquidity for same token', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Adding liquidity...', 'loading');
+                
+                const miniswapContract = new web3.eth.Contract(miniswapABI, contractAddresses.miniswap);
+                const amountWei = web3.utils.toWei(amount, 'ether');
+                
+                // 添加流动性
+                await miniswapContract.methods.addLiquidity(tokenA, tokenB, amountWei)
+                    .send({ from: userAddress });
+                
+                showStatus('Liquidity added successfully!', 'success');
+                await loadBalances();
+                await updateUserLiquidity();
+                await updatePoolInfo();
+            } catch (error) {
+                console.error('Error adding liquidity:', error);
+                showStatus('Error adding liquidity: ' + error.message, 'error');
+            }
+        }
+
+        // 移除流动性
+        async function removeLiquidity() {
+            const tokenA = document.getElementById('removeTokenA').value;
+            const tokenB = document.getElementById('removeTokenB').value;
+            const amount = document.getElementById('removeAmount').value;
+            
+            if (!tokenA || !tokenB || tokenA === '0x0000000000000000000000000000000000000000' || tokenB === '0x0000000000000000000000000000000000000000') {
+                showStatus('Please select two different tokens', 'error');
+                return;
+            }
+            
+            if (tokenA === tokenB) {
+                showStatus('Cannot remove liquidity for same token', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Removing liquidity...', 'loading');
+                
+                const miniswapContract = new web3.eth.Contract(miniswapABI, contractAddresses.miniswap);
+                const amountWei = web3.utils.toWei(amount, 'ether');
+                
+                await miniswapContract.methods.removeLiquidity(tokenA, tokenB, amountWei)
+                    .send({ from: userAddress });
+                
+                showStatus('Liquidity removed successfully!', 'success');
+                await loadBalances();
+                await updateUserLiquidity();
+                await updatePoolInfo();
+            } catch (error) {
+                console.error('Error removing liquidity:', error);
+                showStatus('Error removing liquidity: ' + error.message, 'error');
+            }
+        }
+
+        // 交换代币
+        async function swapTokens() {
+            const tokenIn = document.getElementById('swapTokenIn').value;
+            const tokenOut = document.getElementById('swapTokenOut').value;
+            const amount = document.getElementById('swapAmount').value;
+            
+            if (!tokenIn || !tokenOut || tokenIn === '0x0000000000000000000000000000000000000000' || tokenOut === '0x0000000000000000000000000000000000000000') {
+                showStatus('Please select two different tokens', 'error');
+                return;
+            }
+            
+            if (tokenIn === tokenOut) {
+                showStatus('Cannot swap same token', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showStatus('Please enter a valid amount', 'error');
+                return;
+            }
+            
+            try {
+                showStatus('Swapping tokens...', 'loading');
+                
+                const miniswapContract = new web3.eth.Contract(miniswapABI, contractAddresses.miniswap);
+                const amountWei = web3.utils.toWei(amount, 'ether');
+                
+                // 先批准代币
+                const tokenInContract = new web3.eth.Contract(erc20ABI, tokenIn);
+                await tokenInContract.methods.approve(contractAddresses.miniswap, amountWei)
+                    .send({ from: userAddress });
+                
+                // 交换代币
+                await miniswapContract.methods.swap(tokenIn, tokenOut, amountWei)
+                    .send({ from: userAddress });
+                
+                showStatus('Swap completed successfully!', 'success');
+                await loadBalances();
+                await updatePoolInfo();
+            } catch (error) {
+                console.error('Error swapping tokens:', error);
+                showStatus('Error swapping tokens: ' + error.message, 'error');
+            }
+        }
+
+        // 更新用户流动性信息
+        async function updateUserLiquidity() {
+            if (!userAddress) return;
+            
+            try {
+                const tokenA = contractAddresses.usdt;
+                const tokenB = contractAddresses.usdc;
+                
+                const miniswapContract = new web3.eth.Contract(miniswapABI, contractAddresses.miniswap);
+                const liquidity = await miniswapContract.methods.userLiquidity(userAddress, tokenA, tokenB).call();
+                
+                document.getElementById('userLiquidityDisplay').textContent = 
+                    (liquidity / 10**18).toFixed(2);
+            } catch (error) {
+                console.error('Error updating user liquidity:', error);
+            }
+        }
+
+        // 更新池子信息
+        async function updatePoolInfo() {
+            try {
+                const tokenA = document.getElementById('poolTokenA').value;
+                const tokenB = document.getElementById('poolTokenB').value;
+                
+                if (tokenA === '0x0000000000000000000000000000000000000000' || tokenB === '0x0000000000000000000000000000000000000000') {
+                    showStatus('Please select two tokens to view pool info', 'error');
+                    return;
+                }
+                
+                const miniswapContract = new web3.eth.Contract(miniswapABI, contractAddresses.miniswap);
+                const pool = await miniswapContract.methods.pools(tokenA, tokenB).call();
+                
+                document.getElementById('poolTokenABalance').textContent = 
+                    (pool.tokenABalance / 10**18).toFixed(2);
+                document.getElementById('poolTokenBBalance').textContent = 
+                    (pool.tokenBBalance / 10**18).toFixed(2);
+                document.getElementById('poolTotalLiquidity').textContent = 
+                    (pool.totalLiquidity / 10**18).toFixed(2);
+            } catch (error) {
+                console.error('Error updating pool info:', error);
+                showStatus('Error updating pool info: ' + error.message, 'error');
+            }
+        }
+
+        // 初始化事件监听器
+        function initEventListeners() {
+            document.getElementById('connectSubWallet').addEventListener('click', connectSubWallet);
+            document.getElementById('addLiquidityBtn').addEventListener('click', addLiquidity);
+            document.getElementById('approveTokensBtn').addEventListener('click', approveTokens);
+            document.getElementById('removeLiquidityBtn').addEventListener('click', removeLiquidity);
+            document.getElementById('swapBtn').addEventListener('click', swapTokens);
+            document.getElementById('refreshPoolBtn').addEventListener('click', updatePoolInfo);
+            
+            // 当下拉菜单变化时更新流动性信息
+            document.getElementById('removeTokenA').addEventListener('change', updateUserLiquidity);
+            document.getElementById('removeTokenB').addEventListener('change', updateUserLiquidity);
+            
+            // 当下拉菜单变化时更新池子信息
+            document.getElementById('poolTokenA').addEventListener('change', updatePoolInfo);
+            document.getElementById('poolTokenB').addEventListener('change', updatePoolInfo);
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('load', function() {
+            // 检测SubWallet
+            if (typeof window.SubWallet !== 'undefined') {
+                showStatus('SubWallet detected. Click "Connect SubWallet" to start.', 'success');
+            } else {
+                showStatus('SubWallet is not installed. Please install SubWallet extension to use this DApp.', 'error');
+            }
+            
+            // 初始化事件监听器
+            initEventListeners();
+            
+            // 监听钱包变化
+            if (window.SubWallet) {
+                window.SubWallet.on('accountsChanged', function(accounts) {
+                    if (accounts.length === 0) {
+                        document.getElementById('connectSubWallet').textContent = 'Connect SubWallet';
+                        document.getElementById('walletAddress').textContent = '';
+                        showStatus('Wallet disconnected', 'error');
+                    } else {
+                        userAddress = accounts[0];
+                        document.getElementById('walletAddress').textContent = 
+                            userAddress.substring(0, 6) + '...' + userAddress.substring(38);
+                        document.getElementById('connectSubWallet').textContent = 'Connected';
+                        loadBalances();
+                        updateUserLiquidity();
+                        updatePoolInfo();
+                        showStatus('Wallet account changed', 'success');
+                    }
+                });
+                
+                window.SubWallet.on('chainChanged', function(chainId) {
+                    window.location.reload();
+                });
+            }
+        });
+    </script>
+</body>
+</html>
