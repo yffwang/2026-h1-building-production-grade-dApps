@@ -7,6 +7,12 @@ async function main() {
   const network = await ethers.provider.getNetwork();
   console.log("🌐 网络:", network.name, "(Chain ID:", network.chainId, ")\n");
 
+  // Gas 配置
+  const gasConfig = {
+    maxFeePerGas: ethers.parseUnits("2000000000", "gwei"),
+    maxPriorityFeePerGas: ethers.parseUnits("2000000000", "gwei"),
+  };
+
   // 从 Ignition 部署文件读取地址
   const deploymentPath = path.join(
     __dirname,
@@ -81,7 +87,7 @@ async function main() {
 
   // 设置值
   console.log("1️⃣ 设置 myValue = 888.. .");
-  const tx1 = await contract.setValue(888);
+  const tx1 = await contract.setValue(888, gasConfig);
   const receipt1 = await tx1.wait();
   console.log("   ✓ 交易哈希:", tx1.hash);
   console.log("   ✓ Gas 使用:", receipt1?.gasUsed.toString());
@@ -89,7 +95,7 @@ async function main() {
 
   // 设置消息
   console.log("\n2️⃣ 设置消息...");
-  const tx2 = await contract.setMessage("Hello UUPS on Polkadot!");
+  const tx2 = await contract.setMessage("Hello UUPS on Polkadot!", gasConfig);
   const receipt2 = await tx2.wait();
   console.log("   ✓ 交易哈希:", tx2.hash);
   console.log("   ✓ Gas 使用:", receipt2?.gasUsed.toString());
@@ -99,14 +105,14 @@ async function main() {
   try {
     const contractV2 = contract as any;
     console.log("\n3️⃣ 测试 V2 功能 - 批量设置值...");
-    const tx3 = await contractV2.setValueBatch([100, 200, 300]);
+    const tx3 = await contractV2.setValueBatch([100, 200, 300], gasConfig);
     const receipt3 = await tx3.wait();
     console.log("   ✓ 交易哈希:", tx3.hash);
     console.log("   ✓ Gas 使用:", receipt3?.gasUsed.toString());
     console.log("   ✓ 求和结果:", (await contract.myValue()).toString());
 
-    console.log("\n4️⃣ 测试 V2 功能 - 增加计数器...");
-    const tx4 = await contractV2.incrementCounter();
+    console.log("\n4️⃣ 测试 V2 功能 - 增加计数器.. .");
+    const tx4 = await contractV2.incrementCounter(gasConfig);
     const receipt4 = await tx4.wait();
     console.log("   ✓ 交易哈希:", tx4.hash);
     console.log("   ✓ Gas 使用:", receipt4?.gasUsed.toString());
