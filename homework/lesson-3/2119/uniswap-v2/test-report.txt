@@ -1,0 +1,42 @@
+[dotenv@17.2.1] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+Compiling 12 Solidity files
+Successfully compiled 12 Solidity files
+
+
+  UniswapV2ERC20
+    ✔ name, symbol, decimals, totalSupply, balanceOf, DOMAIN_SEPARATOR, PERMIT_TYPEHASH
+    ✔ approve
+    ✔ transfer
+    ✔ transfer:fail
+    ✔ transferFrom
+    ✔ transferFrom:max
+
+  UniswapV2Factory
+    ✔ feeTo, feeToSetter, allPairsLength
+    ✔ createPair (38ms)
+    ✔ createPair:reverse
+    ✔ setFeeTo
+    ✔ setFeeToSetter
+
+  UniswapV2Pair
+    ✔ mint
+    ✔ getInputPrice:0
+    ✔ getInputPrice:1
+    ✔ getInputPrice:2
+    ✔ getInputPrice:3
+    ✔ getInputPrice:4
+    ✔ getInputPrice:5
+    ✔ getInputPrice:6
+    ✔ optimistic:0
+    ✔ optimistic:1
+    ✔ optimistic:2
+    ✔ optimistic:3
+    ✔ swap:token0
+    ✔ swap:token1
+    ✔ burn
+    ✔ feeTo:off
+    ✔ feeTo:on
+
+
+  28 passing (12s)
+
