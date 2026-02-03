@@ -1,0 +1,28 @@
+{
+  "name": "1963",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "compile": "forge build",
+    "deploy": "ts-node scripts/deploy-simple.ts",
+    "upgrade": "ts-node scripts/upgrade-simple.ts",
+    "read-storage": "ts-node scripts/readStorage-simple.ts",
+    "full": "ts-node scripts/fullWorkflow.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@openzeppelin/contracts": "^5.4.0",
+    "@openzeppelin/contracts-upgradeable": "^5.4.0",
+    "@types/node": "^20.19.30",
+    "dotenv": "^17.2.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "ethers": "^6.16.0"
+  }
+}

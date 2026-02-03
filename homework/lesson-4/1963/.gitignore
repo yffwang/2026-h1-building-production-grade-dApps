@@ -1,0 +1,20 @@
+node_modules
+.env
+.idea
+*.log
+
+# Build outputs
+cache
+artifacts
+out
+coverage
+coverage.json
+
+# TypeScript
+typechain
+typechain-types
+dist
+
+# Foundry
+broadcast
+forge-cache

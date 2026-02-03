@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "target": "es2016",
+    "lib": ["es2016", "esnext"],
+    "types": ["node"],
+    
+    // --- 添加以下两行 ---
+    "baseUrl": ".",
+    "paths": {
+      "@polkadot-api/descriptors": ["./.papi/descriptors"]
+    },
+    // ------------------
+
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "strict": true,
+    "jsx": "react-jsx",
+    "isolatedModules": true,
+    "skipLibCheck": true
+  }
+}

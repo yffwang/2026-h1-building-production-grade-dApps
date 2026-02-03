@@ -1,0 +1,928 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniSwap DEX - mUSD0/mUSD1 Exchange</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.4);
+            overflow: hidden;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .contract-addresses {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 15px 30px;
+            background-color: #f0f4ff;
+            border-bottom: 1px solid #dbe4ff;
+        }
+        
+        .address-box {
+            flex: 1;
+            min-width: 250px;
+        }
+        
+        .address-label {
+            font-size: 0.85rem;
+            color: #4f46e5;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .address-value {
+            background-color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid #c7d2fe;
+            word-break: break-all;
+            color: #1e293b;
+        }
+        
+        .wallet-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 30px;
+            background-color: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .address {
+            background-color: #e2e8f0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
+        }
+        
+        .connect-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .section-title {
+            font-size: 1.5rem;
+            color: #1e293b;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .token-info {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .token-card {
+            flex: 1;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid #bae6fd;
+        }
+        
+        .token-card h3 {
+            color: #0369a1;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .token-details {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        .token-label {
+            font-weight: 500;
+            color: #475569;
+        }
+        
+        .token-value {
+            font-weight: 600;
+            color: #0c4a6e;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #475569;
+            font-weight: 500;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .add-btn {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+        }
+        
+        .remove-btn {
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+        }
+        
+        .swap-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+            color: white;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 7px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .action-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .contract-config {
+            background-color: #f1f5f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+        
+        .contract-config h3 {
+            margin-bottom: 15px;
+            color: #334155;
+        }
+        
+        .token-config {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 25px;
+            display: none;
+        }
+        
+        .success {
+            background-color: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+        
+        .error {
+            background-color: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
+        }
+        
+        .pool-info {
+            background-color: #f0f9ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 25px;
+        }
+        
+        .pool-info h3 {
+            margin-bottom: 15px;
+            color: #0369a1;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px dashed #cbd5e1;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+            }
+            
+            .token-info {
+                flex-direction: column;
+            }
+            
+            .token-config {
+                grid-template-columns: 1fr;
+            }
+            
+            .btn-group {
+                flex-direction: column;
+            }
+            
+            .contract-addresses {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MiniSwap DEX</h1>
+            <p class="subtitle">Exchange mUSD0 and mUSD1 tokens at 1:1 ratio with no fees</p>
+        </header>
+        
+        <div class="contract-addresses">
+            <div class="address-box">
+                <div class="address-label">MiniSwap Contract</div>
+                <div class="address-value">0x9738b7cCAE9B556566604789f6A929a2892fad4B</div>
+            </div>
+            <div class="address-box">
+                <div class="address-label">mUSD0 Token</div>
+                <div class="address-value">0x6F3eFF4E6fea14c0E0080FE84a6eb53Cc86DA587</div>
+            </div>
+            <div class="address-box">
+                <div class="address-label">mUSD1 Token</div>
+                <div class="address-value">0x68BA3F32CBB85583466e07D563eC6c503e17FD5c</div>
+            </div>
+        </div>
+        
+        <div class="wallet-section">
+            <div class="wallet-info">
+                <span>Wallet Status:</span>
+                <div class="address" id="walletAddress">Not Connected</div>
+            </div>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+        </div>
+        
+        <div class="main-content">
+            <div class="token-info">
+                <div class="token-card">
+                    <h3>mUSD0 Token</h3>
+                    <div class="token-details">
+                        <span class="token-label">Your Balance:</span>
+                        <span class="token-value" id="musd0Balance">0.0</span>
+                    </div>
+                    <div class="token-details">
+                        <span class="token-label">Allowance:</span>
+                        <span class="token-value" id="musd0Allowance">0.0</span>
+                    </div>
+                    <div class="token-details">
+                        <span class="token-label">Address:</span>
+                        <span class="token-value" style="font-size: 0.8rem;">0x6F3eFF...DA587</span>
+                    </div>
+                </div>
+                
+                <div class="token-card">
+                    <h3>mUSD1 Token</h3>
+                    <div class="token-details">
+                        <span class="token-label">Your Balance:</span>
+                        <span class="token-value" id="musd1Balance">0.0</span>
+                    </div>
+                    <div class="token-details">
+                        <span class="token-label">Allowance:</span>
+                        <span class="token-value" id="musd1Allowance">0.0</span>
+                    </div>
+                    <div class="token-details">
+                        <span class="token-label">Address:</span>
+                        <span class="token-value" style="font-size: 0.8rem;">0x68BA3F...7FD5c</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pool-info" id="poolInfo" style="display: none;">
+                <h3>Pool Information</h3>
+                <div class="info-row">
+                    <span>Total Liquidity:</span>
+                    <span id="totalLiquidity">0</span>
+                </div>
+                <div class="info-row">
+                    <span>mUSD0 Reserve:</span>
+                    <span id="reserve1">0</span>
+                </div>
+                <div class="info-row">
+                    <span>mUSD1 Reserve:</span>
+                    <span id="reserve2">0</span>
+                </div>
+                <div class="info-row">
+                    <span>Your Liquidity:</span>
+                    <span id="userLiquidity">0</span>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Liquidity Management</h2>
+            <div class="form-group">
+                <label for="addAmount">Amount to Add/Remove (1:1 ratio for both tokens)</label>
+                <input type="number" id="addAmount" placeholder="Enter amount" min="0" step="0.001">
+            </div>
+            <div class="btn-group">
+                <button class="action-btn add-btn" id="addLiquidityBtn">Add Liquidity</button>
+                <button class="action-btn remove-btn" id="removeLiquidityBtn">Remove Liquidity</button>
+                <button class="action-btn add-btn" id="approveTokensBtn">Approve Tokens</button>
+            </div>
+            
+            <h2 class="section-title" style="margin-top: 40px;">Swap Tokens</h2>
+            <div class="form-group">
+                <label for="swapAmount">Amount to Swap</label>
+                <input type="number" id="swapAmount" placeholder="Enter amount" min="0" step="0.001">
+            </div>
+            <div class="form-group">
+                <label for="swapDirection">Swap Direction</label>
+                <select id="swapDirection">
+                    <option value="musd0ToMusd1">mUSD0 → mUSD1</option>
+                    <option value="musd1ToMusd0">mUSD1 → mUSD0</option>
+                </select>
+            </div>
+            <button class="action-btn swap-btn" id="swapBtn" style="width: 100%;">Swap Tokens</button>
+            
+            <div class="status" id="statusMessage"></div>
+        </div>
+    </div>
+    
+    <!-- 使用多个CDN源以确保ethers.js能够加载 -->
+    <script>
+        // 首先尝试加载ethers.js
+        function loadEthers() {
+            // 尝试从多个CDN加载ethers.js
+            const cdnSources = [
+                'https://cdn.jsdelivr.net/npm/ethers@5.7.0/dist/ethers.umd.min.js',
+                'https://unpkg.com/ethers@5.7.0/dist/ethers.umd.min.js',
+                'https://cdn.ethers.io/lib/ethers-5.7.0.umd.min.js'
+            ];
+            
+            let currentSource = 0;
+            
+            function tryLoad(sourceIndex) {
+                if (sourceIndex >= cdnSources.length) {
+                    console.error('All CDN sources failed to load ethers.js');
+                    document.getElementById('statusMessage').textContent = 'Error: Failed to load required libraries. Please check your internet connection.';
+                    document.getElementById('statusMessage').className = 'status error';
+                    document.getElementById('statusMessage').style.display = 'block';
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = cdnSources[sourceIndex];
+                script.onload = function() {
+                    console.log('ethers.js loaded successfully from:', cdnSources[sourceIndex]);
+                    initApp();
+                };
+                script.onerror = function() {
+                    console.error('Failed to load ethers.js from:', cdnSources[sourceIndex]);
+                    tryLoad(sourceIndex + 1);
+                };
+                document.head.appendChild(script);
+            }
+            
+            tryLoad(0);
+        }
+        
+        // 页面加载完成后开始加载ethers.js
+        window.addEventListener('DOMContentLoaded', loadEthers);
+    </script>
+    
+    <script>
+        // 这个脚本将在ethers.js加载完成后执行
+        function initApp() {
+            // 检查ethers是否已加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers is still not defined after loading');
+                document.getElementById('statusMessage').textContent = 'Error: Required library not loaded. Please refresh the page.';
+                document.getElementById('statusMessage').className = 'status error';
+                document.getElementById('statusMessage').style.display = 'block';
+                return;
+            }
+            
+            console.log('Initializing MiniSwap DEX app...');
+            
+            // Contract addresses
+            const MINISWAP_ADDRESS = "0x9738b7cCAE9B556566604789f6A929a2892fad4B";
+            const MUSD0_ADDRESS = "0x6F3eFF4E6fea14c0E0080FE84a6eb53Cc86DA587";
+            const MUSD1_ADDRESS = "0x68BA3F32CBB85583466e07D563eC6c503e17FD5c";
+            
+            // ABI for MiniSwap contract
+            const miniSwapABI = [
+                "function addLiquidity(address tokenA, address tokenB, uint amount) external",
+                "function removeLiquidity(address tokenA, address tokenB, uint amount) external",
+                "function swap(address tokenIn, address tokenOut, uint amount) external",
+                "function getLiquidity(address user, address tokenA, address tokenB) external view returns (uint256)",
+                "function getPoolInfo(address tokenA, address tokenB) external view returns (uint256, uint256, uint256)",
+                "event LiquidityAdded(address indexed user, address indexed tokenA, address indexed tokenB, uint256 amount)",
+                "event LiquidityRemoved(address indexed user, address indexed tokenA, address indexed tokenB, uint256 amount)",
+                "event Swapped(address indexed user, address indexed tokenIn, address indexed tokenOut, uint256 amount)"
+            ];
+            
+            // ABI for ERC20 tokens
+            const erc20ABI = [
+                "function balanceOf(address owner) view returns (uint256)",
+                "function allowance(address owner, address spender) view returns (uint256)",
+                "function approve(address spender, uint256 amount) returns (bool)",
+                "function transfer(address to, uint256 amount) returns (bool)",
+                "function transferFrom(address from, address to, uint256 amount) returns (bool)",
+                "function name() view returns (string)",
+                "function symbol() view returns (string)",
+                "function decimals() view returns (uint8)"
+            ];
+            
+            let provider, signer, miniSwapContract;
+            let musd0Contract, musd1Contract;
+            let userAddress = null;
+            
+            // DOM Elements
+            const connectBtn = document.getElementById('connectBtn');
+            const walletAddress = document.getElementById('walletAddress');
+            const addLiquidityBtn = document.getElementById('addLiquidityBtn');
+            const removeLiquidityBtn = document.getElementById('removeLiquidityBtn');
+            const approveTokensBtn = document.getElementById('approveTokensBtn');
+            const swapBtn = document.getElementById('swapBtn');
+            const addAmountInput = document.getElementById('addAmount');
+            const swapAmountInput = document.getElementById('swapAmount');
+            const swapDirection = document.getElementById('swapDirection');
+            const poolInfo = document.getElementById('poolInfo');
+            const totalLiquidity = document.getElementById('totalLiquidity');
+            const reserve1 = document.getElementById('reserve1');
+            const reserve2 = document.getElementById('reserve2');
+            const userLiquidity = document.getElementById('userLiquidity');
+            const statusMessage = document.getElementById('statusMessage');
+            const musd0Balance = document.getElementById('musd0Balance');
+            const musd1Balance = document.getElementById('musd1Balance');
+            const musd0Allowance = document.getElementById('musd0Allowance');
+            const musd1Allowance = document.getElementById('musd1Allowance');
+            
+            // Connect to MetaMask
+            async function connectWallet() {
+                if (typeof window.ethereum === 'undefined') {
+                    showError('Please install MetaMask to use this DEX');
+                    return;
+                }
+                
+                try {
+                    // Request account access
+                    await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    userAddress = await signer.getAddress();
+                    
+                    // Initialize contracts
+                    miniSwapContract = new ethers.Contract(MINISWAP_ADDRESS, miniSwapABI, signer);
+                    musd0Contract = new ethers.Contract(MUSD0_ADDRESS, erc20ABI, signer);
+                    musd1Contract = new ethers.Contract(MUSD1_ADDRESS, erc20ABI, signer);
+                    
+                    // Update UI
+                    walletAddress.textContent = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+                    connectBtn.innerHTML = '<span class="loading"></span>Connected';
+                    connectBtn.disabled = true;
+                    
+                    showSuccess('Wallet connected successfully!');
+                    
+                    // Load token balances and pool info
+                    await loadTokenBalances();
+                    await loadPoolInfo();
+                    
+                    // Listen for account changes
+                    window.ethereum.on('accountsChanged', (accounts) => {
+                        if (accounts.length === 0) {
+                            disconnectWallet();
+                        } else {
+                            connectWallet();
+                        }
+                    });
+                    
+                    // Listen for chain changes
+                    window.ethereum.on('chainChanged', () => {
+                        window.location.reload();
+                    });
+                    
+                } catch (error) {
+                    console.error('Error connecting wallet:', error);
+                    showError('Failed to connect wallet. Please try again.');
+                }
+            }
+            
+            function disconnectWallet() {
+                userAddress = null;
+                walletAddress.textContent = 'Not Connected';
+                connectBtn.innerHTML = 'Connect Wallet';
+                connectBtn.disabled = false;
+                poolInfo.style.display = 'none';
+                showError('Wallet disconnected');
+            }
+            
+            // Load token balances and allowances
+            async function loadTokenBalances() {
+                if (!userAddress) return;
+                
+                try {
+                    // Get balances
+                    const musd0Bal = await musd0Contract.balanceOf(userAddress);
+                    const musd1Bal = await musd1Contract.balanceOf(userAddress);
+                    
+                    // Get allowances
+                    const musd0Allow = await musd0Contract.allowance(userAddress, MINISWAP_ADDRESS);
+                    const musd1Allow = await musd1Contract.allowance(userAddress, MINISWAP_ADDRESS);
+                    
+                    // Update UI
+                    musd0Balance.textContent = parseFloat(ethers.utils.formatUnits(musd0Bal, 18)).toFixed(4);
+                    musd1Balance.textContent = parseFloat(ethers.utils.formatUnits(musd1Bal, 18)).toFixed(4);
+                    musd0Allowance.textContent = parseFloat(ethers.utils.formatUnits(musd0Allow, 18)).toFixed(4);
+                    musd1Allowance.textContent = parseFloat(ethers.utils.formatUnits(musd1Allow, 18)).toFixed(4);
+                    
+                } catch (error) {
+                    console.error('Error loading token balances:', error);
+                }
+            }
+            
+            // Load pool information
+            async function loadPoolInfo() {
+                if (!userAddress) {
+                    showError('Please connect your wallet first');
+                    return;
+                }
+                
+                try {
+                    // Get pool info
+                    const [totalSupply, reserveA, reserveB] = await miniSwapContract.getPoolInfo(MUSD0_ADDRESS, MUSD1_ADDRESS);
+                    const userLiquidityAmount = await miniSwapContract.getLiquidity(userAddress, MUSD0_ADDRESS, MUSD1_ADDRESS);
+                    
+                    // Update UI with pool info
+                    totalLiquidity.textContent = parseFloat(ethers.utils.formatUnits(totalSupply, 18)).toFixed(4);
+                    reserve1.textContent = parseFloat(ethers.utils.formatUnits(reserveA, 18)).toFixed(4);
+                    reserve2.textContent = parseFloat(ethers.utils.formatUnits(reserveB, 18)).toFixed(4);
+                    userLiquidity.textContent = parseFloat(ethers.utils.formatUnits(userLiquidityAmount, 18)).toFixed(4);
+                    
+                    poolInfo.style.display = 'block';
+                    
+                } catch (error) {
+                    console.error('Error loading pool info:', error);
+                    // If pool doesn't exist yet, show empty pool
+                    totalLiquidity.textContent = "0";
+                    reserve1.textContent = "0";
+                    reserve2.textContent = "0";
+                    userLiquidity.textContent = "0";
+                    poolInfo.style.display = 'block';
+                    showError('Pool not initialized yet. Add liquidity first.');
+                }
+            }
+            
+            // Approve tokens for MiniSwap
+            async function approveTokens() {
+                if (!validateConnection()) return;
+                
+                const amount = ethers.utils.parseUnits("1000000", 18); // Approve a large amount
+                
+                try {
+                    showStatus('Approving mUSD0...', 'info');
+                    const tx1 = await musd0Contract.approve(MINISWAP_ADDRESS, amount);
+                    await tx1.wait();
+                    
+                    showStatus('Approving mUSD1...', 'info');
+                    const tx2 = await musd1Contract.approve(MINISWAP_ADDRESS, amount);
+                    await tx2.wait();
+                    
+                    showSuccess('Tokens approved successfully!');
+                    await loadTokenBalances(); // Refresh token info
+                    
+                } catch (error) {
+                    console.error('Error approving tokens:', error);
+                    showError(`Failed to approve tokens: ${error.message}`);
+                }
+            }
+            
+            // Add liquidity
+            async function addLiquidity() {
+                if (!validateInputs()) return;
+                
+                const amount = ethers.utils.parseUnits(addAmountInput.value, 18);
+                
+                try {
+                    // Check allowances
+                    const musd0Allowance = await musd0Contract.allowance(userAddress, MINISWAP_ADDRESS);
+                    const musd1Allowance = await musd1Contract.allowance(userAddress, MINISWAP_ADDRESS);
+                    
+                    if (musd0Allowance.lt(amount) || musd1Allowance.lt(amount)) {
+                        showError('Please approve tokens first using the "Approve Tokens" button');
+                        return;
+                    }
+                    
+                    // Check balances
+                    const musd0Balance = await musd0Contract.balanceOf(userAddress);
+                    const musd1Balance = await musd1Contract.balanceOf(userAddress);
+                    
+                    if (musd0Balance.lt(amount) || musd1Balance.lt(amount)) {
+                        showError('Insufficient token balance');
+                        return;
+                    }
+                    
+                    // Add liquidity
+                    showStatus('Adding liquidity...', 'info');
+                    const tx = await miniSwapContract.addLiquidity(MUSD0_ADDRESS, MUSD1_ADDRESS, amount);
+                    await tx.wait();
+                    
+                    showSuccess('Liquidity added successfully!');
+                    await loadTokenBalances(); // Refresh token info
+                    await loadPoolInfo(); // Refresh pool info
+                    
+                } catch (error) {
+                    console.error('Error adding liquidity:', error);
+                    showError(`Failed to add liquidity: ${error.message}`);
+                }
+            }
+            
+            // Remove liquidity
+            async function removeLiquidity() {
+                if (!validateInputs()) return;
+                
+                const amount = ethers.utils.parseUnits(addAmountInput.value, 18);
+                
+                try {
+                    // Check user liquidity
+                    const userLiquidityAmount = await miniSwapContract.getLiquidity(userAddress, MUSD0_ADDRESS, MUSD1_ADDRESS);
+                    
+                    if (userLiquidityAmount.lt(amount)) {
+                        showError('Insufficient liquidity balance');
+                        return;
+                    }
+                    
+                    showStatus('Removing liquidity...', 'info');
+                    const tx = await miniSwapContract.removeLiquidity(MUSD0_ADDRESS, MUSD1_ADDRESS, amount);
+                    await tx.wait();
+                    
+                    showSuccess('Liquidity removed successfully!');
+                    await loadTokenBalances(); // Refresh token info
+                    await loadPoolInfo(); // Refresh pool info
+                    
+                } catch (error) {
+                    console.error('Error removing liquidity:', error);
+                    showError(`Failed to remove liquidity: ${error.message}`);
+                }
+            }
+            
+            // Swap tokens
+            async function swapTokens() {
+                if (!validateInputs(true)) return;
+                
+                const amount = ethers.utils.parseUnits(swapAmountInput.value, 18);
+                
+                let tokenIn, tokenOut, tokenInContract;
+                
+                if (swapDirection.value === 'musd0ToMusd1') {
+                    tokenIn = MUSD0_ADDRESS;
+                    tokenOut = MUSD1_ADDRESS;
+                    tokenInContract = musd0Contract;
+                } else {
+                    tokenIn = MUSD1_ADDRESS;
+                    tokenOut = MUSD0_ADDRESS;
+                    tokenInContract = musd1Contract;
+                }
+                
+                try {
+                    // Check allowance
+                    const allowance = await tokenInContract.allowance(userAddress, MINISWAP_ADDRESS);
+                    
+                    if (allowance.lt(amount)) {
+                        showError('Please approve tokens first using the "Approve Tokens" button');
+                        return;
+                    }
+                    
+                    // Check balance
+                    const balance = await tokenInContract.balanceOf(userAddress);
+                    
+                    if (balance.lt(amount)) {
+                        showError('Insufficient token balance');
+                        return;
+                    }
+                    
+                    // Check pool reserves
+                    const [totalSupply, reserveA, reserveB] = await miniSwapContract.getPoolInfo(MUSD0_ADDRESS, MUSD1_ADDRESS);
+                    
+                    if (tokenIn === MUSD0_ADDRESS && reserveB.lt(amount)) {
+                        showError('Insufficient mUSD1 reserve in pool');
+                        return;
+                    }
+                    
+                    if (tokenIn === MUSD1_ADDRESS && reserveA.lt(amount)) {
+                        showError('Insufficient mUSD0 reserve in pool');
+                        return;
+                    }
+                    
+                    // Execute swap
+                    showStatus('Swapping tokens...', 'info');
+                    const tx = await miniSwapContract.swap(tokenIn, tokenOut, amount);
+                    await tx.wait();
+                    
+                    showSuccess('Swap completed successfully!');
+                    await loadTokenBalances(); // Refresh token info
+                    await loadPoolInfo(); // Refresh pool info
+                    
+                } catch (error) {
+                    console.error('Error swapping tokens:', error);
+                    showError(`Failed to swap tokens: ${error.message}`);
+                }
+            }
+            
+            // Validate connection
+            function validateConnection() {
+                if (!userAddress) {
+                    showError('Please connect your wallet first');
+                    return false;
+                }
+                
+                if (!miniSwapContract) {
+                    showError('Please connect wallet first');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Validate inputs
+            function validateInputs(isSwap = false) {
+                if (!validateConnection()) return false;
+                
+                const amountInput = isSwap ? swapAmountInput : addAmountInput;
+                if (!amountInput.value || parseFloat(amountInput.value) <= 0) {
+                    showError('Please enter a valid amount');
+                    return false;
+                }
+                
+                return true;
+            }
+            
+            // Show status message
+            function showStatus(message, type = 'info') {
+                statusMessage.textContent = message;
+                statusMessage.className = 'status';
+                statusMessage.classList.add(type === 'error' ? 'error' : 'success');
+                statusMessage.style.display = 'block';
+                
+                // Auto-hide after 5 seconds
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+            
+            function showSuccess(message) {
+                showStatus(message, 'success');
+            }
+            
+            function showError(message) {
+                showStatus(message, 'error');
+            }
+            
+            // Event Listeners
+            connectBtn.addEventListener('click', connectWallet);
+            approveTokensBtn.addEventListener('click', approveTokens);
+            addLiquidityBtn.addEventListener('click', addLiquidity);
+            removeLiquidityBtn.addEventListener('click', removeLiquidity);
+            swapBtn.addEventListener('click', swapTokens);
+            
+            // Auto-refresh when amount inputs change
+            addAmountInput.addEventListener('input', () => {
+                if (addAmountInput.value) {
+                    const amount = parseFloat(addAmountInput.value);
+                    if (amount > 0) {
+                        addLiquidityBtn.disabled = false;
+                        removeLiquidityBtn.disabled = false;
+                    }
+                }
+            });
+            
+            swapAmountInput.addEventListener('input', () => {
+                if (swapAmountInput.value) {
+                    const amount = parseFloat(swapAmountInput.value);
+                    if (amount > 0) {
+                        swapBtn.disabled = false;
+                    }
+                }
+            });
+            
+            // 检查是否已经有MetaMask连接
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts.length > 0) {
+                            // 已经有连接的钱包，自动连接
+                            console.log('Auto-connecting to already connected wallet');
+                            connectWallet();
+                        }
+                    })
+                    .catch(err => console.log('Error checking accounts:', err));
+            }
+        }
+    </script>
+</body>
+</html>

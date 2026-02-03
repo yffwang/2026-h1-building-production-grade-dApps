@@ -1,0 +1,27 @@
+{
+  "name": "storage-contract",
+  "version": "1.0.0",
+  "description": "Zero to Hero DApp for Polkadot Hub TestNet",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy": "unset HTTP_PROXY HTTPS_PROXY http_proxy https_proxy ALL_PROXY all_proxy 2>/dev/null; hardhat ignition deploy ./ignition/modules/Storage.ts --network polkadotTestNet",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ignition": "^3.0.7",
+    "@nomicfoundation/hardhat-toolbox-viem": "^5.0.2",
+    "@types/node": "^20.19.30",
+    "hardhat": "^3.1.5",
+    "solc": "^0.8.28",
+    "typescript": "^5.0.0",
+    "viem": "^2.44.4"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5"
+  },
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module"
+}

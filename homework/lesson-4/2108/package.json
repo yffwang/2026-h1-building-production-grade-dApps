@@ -1,0 +1,11 @@
+{
+  "name": "moonbase-upgrade-check",
+  "version": "1.0.0",
+  "main": "check.js",
+  "scripts": {
+    "check": "node check.js"
+  },
+  "dependencies": {
+    "ethers": "^6.10.0"
+  }
+}

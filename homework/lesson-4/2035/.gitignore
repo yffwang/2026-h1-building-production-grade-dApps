@@ -1,0 +1,23 @@
+node_modules
+.env
+.idea
+*.log
+
+# Build outputs
+cache
+artifacts
+out
+coverage
+coverage.json
+
+# TypeScript
+typechain
+typechain-types
+dist
+
+# Hardhat files
+hardhat.config.ts
+
+# Bun auto-generated
+CLAUDE.md
+

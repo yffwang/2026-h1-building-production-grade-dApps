@@ -1,0 +1,15 @@
+{
+  "network": "Paseo Testnet",
+  "proxyAddress": "0x42411e73331ee0fedDb54deb78f64BC39C860664",
+  "implementationV1": "0x0B9d209E6e7405ad51e280fA2C9463F04D11Bf9B",
+  "deployer": "0xf24FF3a9CF04c71Dbc94D0b566f7A27B94566cac",
+  "version": "v1.0.0",
+  "deployedAt": "2026-01-24T11:50:07.065Z",
+  "implementationV2": "0x7C37433ad35bD570990551caa8319A71D14d45F4",
+  "upgradeTxHash": "0xadc806a459e4bea18a7568157329d6b40b080c8c7a9ea76967e968136055ac0c",
+  "versionBefore": "v1.0.0",
+  "versionAfter": "v2.0.0",
+  "countBefore": "0",
+  "countAfter": "0",
+  "upgradedAt": "2026-01-24T11:51:43.525Z"
+}

@@ -1,0 +1,3 @@
+[submodule "course/lesson-6/foundry/lib/forge-std"]
+	path = course/lesson-6/foundry/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std

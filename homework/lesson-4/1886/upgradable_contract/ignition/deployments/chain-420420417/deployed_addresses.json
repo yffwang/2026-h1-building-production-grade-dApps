@@ -1,0 +1,7 @@
+{
+  "MyContractV1Module#MyContractV1_Implementation": "0xA13cc9469df6c2AADFB6D3a10844a65fa04AE814",
+  "MyContractV1Module#MyContractV1_Proxy": "0x4151F6a24ed52Da18683E4E6150F74cBe92E7197",
+  "MyContractV1Module#MyContractV1_ProxyInterface": "0x4151F6a24ed52Da18683E4E6150F74cBe92E7197",
+  "UpgradeToV2Module#MyContractV2_ProxyInterface": "0x4151F6a24ed52Da18683E4E6150F74cBe92E7197",
+  "UpgradeToV2Module#MyContractV2_Implementation": "0x12B27DcCF445c679B694BB03F60CfFdbEb2aa3E7"
+}
